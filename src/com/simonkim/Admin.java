@@ -1,8 +1,3 @@
-// 충전(분 단위, 충전 대기 중인 PC만 리스팅), 상품 결제(복수 선택, 합산 금액과 거스름돈 계산까지)
-// 1분 단위로 정확하게 새로고침
-// 파워 종료 시 하루 총 매상액 계산
-// UI를 어떻게 구현할 것인지(10대는 다 나오면서 동시에 상품도 나와야하고...)
-
 package com.simonkim;
 
 import java.text.SimpleDateFormat;
@@ -13,35 +8,36 @@ import java.io.*;
 
 public class Admin {
 
-  static String logPath = "/Users/simonkim/Desktop/OOAD_POST/OOAD_log.txt";
-  static String dataPath = "/Users/simonkim/Desktop/OOAD_POST/OOAD_data.txt";
-  static String pcPath = "/Users/simonkim/Desktop/OOAD_POST/PC/";
+  String logPath = "/Users/simonkim/Desktop/OOAD_POST/OOAD_log.txt";
+  String dataPath = "/Users/simonkim/Desktop/OOAD_POST/OOAD_data.txt";
+  String pcPath = "/Users/simonkim/Desktop/OOAD_POST/PC/";
 
-  static boolean power = false, orderAble = false, chargeAble = false;
-  static String userPCs[][] = new String[10][2];
-  static int chargeFee = 0;
-  static int totalAmount = 0;
-  static Map<String, Integer> menuTable = new HashMap<String, Integer>();
+  boolean orderAble, chargeAble;
+  String[][] userPCs;
+  int chargeFee;
+  int totalAmount;
+  Map<String, Integer> menuTable;
 
   static Date today = new Date();
   static SimpleDateFormat time = new SimpleDateFormat("yyyy/MM/dd a hh:mm:ss ");
 
-  public static void main(String[] args) throws IOException {
-    powerOn();
-    init();
-  }
+  Admin() throws IOException {
+    orderAble = false;
+    chargeAble = false;
+    userPCs = new String[10][2];
+    chargeFee = 0;
+    totalAmount = 0;
+    menuTable = new HashMap<String, Integer>();
 
-  static void powerOn() throws IOException {
-    power = true;
     writeLog("관리자 포스가 켜졌습니다.", logPath);
   }
 
-  static void pawerOff() throws IOException {
-
+  void sellOff() throws IOException {
+    //판매모드 종료, 작동 중 매상 출력
   }
 
-  static void init() throws IOException {
-    writeLog("초기 환경설정 중입니다...", logPath);
+  void init() throws IOException {
+    writeLog("초기 환경설정을 시작합니다...", logPath);
 
     readData(dataPath);
     if (!chargeAble) {
@@ -61,7 +57,9 @@ public class Admin {
     writeLog("초기 환경설정이 끝났습니다...", logPath);
   }
 
-  static void refreshPC(String path) throws IOException {
+  void refreshPC(String path) throws IOException {
+    //리프레시하다가 남은시간 0이 되는 PC가 발생하면 즉각 사용종료 명령 호출 필요
+    //writePCStatus("0", "0", Integer.toString(pcNum), pcPath); 사용종료
     for (int i = 1; i <= 10; i++) {
       BufferedReader bufReader = new BufferedReader(
           new FileReader(path + Integer.toString(i) + ".txt"));
@@ -71,12 +69,12 @@ public class Admin {
     }
   }
 
-  static void chargePC(String targetNum, String time, int receiveMoney) throws IOException {
-
+  void chargePC(String targetNum, String time, int receiveMoney) throws IOException {
+    //요금 충전, 시작시간과 남은시간 기록 필요
   }
 
-  static void orderMenu(String[] order, int receive) throws IOException {
-
+  void orderMenu(String[] order, int receive) throws IOException {
+    //상품 판매, 주문을 연속해서 받고 결제버튼을 누르면 합산 가격 출력 및 결제(receive로 받은 현금, 거스름돈 출력)
   }
 
   static void writeLog(String input, String path) throws IOException {
@@ -87,7 +85,7 @@ public class Admin {
     log.close();
   }
 
-  static void readData(String path) throws IOException {
+  void readData(String path) throws IOException {
     BufferedReader bufReader = new BufferedReader(new FileReader(path));
     String fee = bufReader.readLine();
     if (fee != null) {
@@ -106,5 +104,28 @@ public class Admin {
       orderAble = true;
     }
     bufReader.close();
+  }
+
+  void PCcharged(int pay) throws IOException {
+    for (int i = 1; i <= 10; i++) {
+      BufferedReader bufReader = new BufferedReader(
+          new FileReader(pcPath + Integer.toString(i) + ".txt"));
+      String status = bufReader.readLine();
+      bufReader.close();
+      if (status.equals("0")) {
+        String chargedTime = Integer.toString((int)((double)pay/chargeFee*60));
+        writePCStatus("1", chargedTime, Integer.toString(i), pcPath);
+        writeLog(Integer.toString(i) + "번 PC에 " + chargedTime + "분을 충전하였습니다. 사용을 시작합니다.", logPath);
+        break;
+      }
+    }
+  }
+
+  void writePCStatus(String status, String remainTime, String pcNum, String path)
+      throws IOException {
+    PrintWriter statusFile = new PrintWriter(new FileWriter(path + pcNum + ".txt"));
+    statusFile.println(status);
+    statusFile.println(remainTime);
+    statusFile.close();
   }
 }
