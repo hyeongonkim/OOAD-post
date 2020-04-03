@@ -12,18 +12,16 @@ public class Admin {
   String dataPath = "/Users/simonkim/Desktop/OOAD_POST/OOAD_data.txt";
   String pcPath = "/Users/simonkim/Desktop/OOAD_POST/PC/";
 
-  boolean orderAble, chargeAble;
+  boolean orderAble;
   String[][] userPCs;
   int chargeFee;
   int totalAmount;
   Map<String, Integer> menuTable;
 
-  static Date today = new Date();
   static SimpleDateFormat time = new SimpleDateFormat("yyyy/MM/dd a hh:mm:ss ");
 
   Admin() throws IOException {
     orderAble = false;
-    chargeAble = false;
     userPCs = new String[10][2];
     chargeFee = 0;
     totalAmount = 0;
@@ -32,54 +30,65 @@ public class Admin {
     writeLog("관리자 포스가 켜졌습니다.", logPath);
   }
 
-  void sellOff() throws IOException {
-    //판매모드 종료, 작동 중 매상 출력
-  }
-
   void init() throws IOException {
     writeLog("초기 환경설정을 시작합니다...", logPath);
 
     readData(dataPath);
-    if (!chargeAble) {
-      writeLog("!!!ERROR!!! 요금 데이터 로드에 실패하였습니다.", logPath);
-    }
-    if (!orderAble) {
-      writeLog("!!!ERROR!!! 메뉴 데이터 로드에 실패하였습니다.", logPath);
-    }
-    if (chargeAble) {
-      writeLog("시간당 이용 금액은 " + Integer.toString(chargeFee) + "원 입니다.", logPath);
-    }
-    if (orderAble) {
-      writeLog("판매 메뉴는 " + String.valueOf(menuTable.keySet()) + "입니다.", logPath);
-    }
-    refreshPC(pcPath);
+    writeLog("시간당 이용 금액은 " + Integer.toString(chargeFee) + "원 입니다.", logPath);
+    writeLog("판매 메뉴는 " + String.valueOf(menuTable.keySet()) + "입니다.", logPath);
+
+    refreshPC();
     writeLog("PC 10대 동기화가 완료되었습니다.", logPath);
     writeLog("초기 환경설정이 끝났습니다...", logPath);
   }
 
-  void refreshPC(String path) throws IOException {
-    //리프레시하다가 남은시간 0이 되는 PC가 발생하면 즉각 사용종료 명령 호출 필요
-    //writePCStatus("0", "0", Integer.toString(pcNum), pcPath); 사용종료
+  void refreshPC() throws IOException {
     for (int i = 1; i <= 10; i++) {
       BufferedReader bufReader = new BufferedReader(
-          new FileReader(path + Integer.toString(i) + ".txt"));
+          new FileReader( pcPath + Integer.toString(i) + ".txt"));
       userPCs[i - 1][0] = bufReader.readLine();
       userPCs[i - 1][1] = bufReader.readLine();
       bufReader.close();
+      if(!userPCs[i - 1][1].equals("0") && userPCs[i - 1][0].equals("1")) {
+        int reTime = Integer.parseInt(userPCs[i - 1][1]);
+        reTime--;
+        if(reTime <= 0) {
+          writePCStatus("0", "0", Integer.toString(i), pcPath);
+        } else {
+          writePCStatus(userPCs[i - 1][0], Integer.toString(reTime), Integer.toString(i), pcPath);
+        }
+      }
     }
   }
 
-  void chargePC(String targetNum, String time, int receiveMoney) throws IOException {
-    //요금 충전, 시작시간과 남은시간 기록 필요
+  void chargePC(int target, int time, int receiveMoney) throws IOException {
+    PCcharged(target, (time * chargeFee / 60) / 10 * 10); // 1원 단위 버림
+    writeLog(Integer.toString(target) + "번 PC 충전 [" + Integer.toString(receiveMoney) + "원 수령 / " + Integer.toString((time * chargeFee / 60) / 10 * 10) + "원 결제 / " + Integer.toString(receiveMoney - (time * chargeFee / 60) / 10 * 10) + "원 거스름] 결제되었습니다.", logPath);
   }
 
-  void orderMenu(String[] order, int receive) throws IOException {
+  int calMenu(String[] order) throws IOException {
     //상품 판매, 주문을 연속해서 받고 결제버튼을 누르면 합산 가격 출력 및 결제(receive로 받은 현금, 거스름돈 출력)
+    //상품 가액 계산
+    int price = 0;
+    for(int i = 0; i < order.length; i++) {
+      price += menuTable.get(order[i]);
+    }
+    return price;
+  }
+
+  void payMenu(String[] order, int price, int receiveMoney) throws IOException {
+    String menu = "";
+    for(int i = 0; i < order.length - 1; i++) {
+      menu += order[i] + ", ";
+    }
+    menu += order[order.length - 1];
+    writeLog("상품 주문 [<" + menu + "> 주문 / " + Integer.toString(receiveMoney) + "원 수령 / " + Integer.toString(price) + "원 결제 / " + Integer.toString(receiveMoney - price) + "원 거스름] 결제되었습니다.", logPath);
   }
 
   static void writeLog(String input, String path) throws IOException {
+    long nowTime = System.currentTimeMillis();
     PrintWriter log = new PrintWriter(new FileWriter(path, true));
-    String text = time.format(today) + input;
+    String text = time.format(nowTime) + input;
     log.println(text);
     System.out.println(text);
     log.close();
@@ -90,7 +99,6 @@ public class Admin {
     String fee = bufReader.readLine();
     if (fee != null) {
       chargeFee = Integer.parseInt(fee);
-      chargeAble = true;
     }
     while (true) {
       String menu = bufReader.readLine();
@@ -106,19 +114,18 @@ public class Admin {
     bufReader.close();
   }
 
-  void PCcharged(int pay) throws IOException {
-    for (int i = 1; i <= 10; i++) {
-      BufferedReader bufReader = new BufferedReader(
-          new FileReader(pcPath + Integer.toString(i) + ".txt"));
-      String status = bufReader.readLine();
-      bufReader.close();
-      if (status.equals("0")) {
-        String chargedTime = Integer.toString((int)((double)pay/chargeFee*60));
-        writePCStatus("1", chargedTime, Integer.toString(i), pcPath);
-        writeLog(Integer.toString(i) + "번 PC에 " + chargedTime + "분을 충전하였습니다. 사용을 시작합니다.", logPath);
-        break;
-      }
-    }
+  void PCcharged(int target, int pay) throws IOException {
+
+    BufferedReader bufReader = new BufferedReader(
+        new FileReader(pcPath + Integer.toString(target) + ".txt"));
+    bufReader.readLine();
+    int nowTime = Integer.parseInt(bufReader.readLine());
+    bufReader.close();
+
+    totalAmount += pay;
+    String chargedTime = Integer.toString(nowTime + (int)((double)pay/chargeFee*60));
+    writePCStatus("1", chargedTime, Integer.toString(target), pcPath);
+    writeLog(Integer.toString(target) + "번 PC에 " + chargedTime + "분을 충전하였습니다. (" + Integer.toString(pay) + "원)", logPath);
   }
 
   void writePCStatus(String status, String remainTime, String pcNum, String path)
