@@ -1,7 +1,6 @@
 package com.simonkim;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.*;
@@ -61,6 +60,10 @@ public class Admin {
     }
   }
 
+  int calChargePC(int time) {
+    return (time * chargeFee / 60) / 10 * 10;
+  }
+
   void chargePC(int target, int time, int receiveMoney) throws IOException {
     PCcharged(target, (time * chargeFee / 60) / 10 * 10); // 1원 단위 버림
     writeLog(Integer.toString(target) + "번 PC 충전 [" + Integer.toString(receiveMoney) + "원 수령 / " + Integer.toString((time * chargeFee / 60) / 10 * 10) + "원 결제 / " + Integer.toString(receiveMoney - (time * chargeFee / 60) / 10 * 10) + "원 거스름] 결제되었습니다.", logPath);
@@ -77,6 +80,7 @@ public class Admin {
   }
 
   void payMenu(String[] order, int price, int receiveMoney) throws IOException {
+    totalAmount += price;
     String menu = "";
     for(int i = 0; i < order.length - 1; i++) {
       menu += order[i] + ", ";
@@ -124,6 +128,8 @@ public class Admin {
 
     totalAmount += pay;
     String chargedTime = Integer.toString(nowTime + (int)((double)pay/chargeFee*60));
+    userPCs[target - 1][0] = "1";
+    userPCs[target - 1][1] = chargedTime;
     writePCStatus("1", chargedTime, Integer.toString(target), pcPath);
     writeLog(Integer.toString(target) + "번 PC에 " + chargedTime + "분을 충전하였습니다. (" + Integer.toString(pay) + "원)", logPath);
   }
