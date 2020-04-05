@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Vector;
 import javax.swing.*;
 
 public class GUIproc {
@@ -34,6 +35,9 @@ public class GUIproc {
   static JLabel pc09_Time;
   static JLabel pc10_Time;
 
+  static Vector<String> order = new Vector<String>();
+
+  static String[][] menu = new String[12][2];
 
   static SimpleDateFormat time = new SimpleDateFormat("mm");
 
@@ -49,6 +53,405 @@ public class GUIproc {
     JPanel sellPage = new JPanel();
     JPanel chgPCPayPage = new JPanel();
     JPanel salesPage = new JPanel();
+    JPanel menuPage = new JPanel();
+    JPanel payMenuPage = new JPanel();
+    JPanel chgMenuPage = new JPanel();
+
+    JLabel orderList = new JLabel("<html></html>");
+
+    // 상품관리 패널
+
+    chgMenuPage.setLayout(new GridLayout(7, 3));
+
+    chgMenuPage.add(new JLabel("추가/삭제할 상품 정보를 입력하고 버튼을 누르세요. 삭제의 경우 상품명만 맞게 적으면 됩니다.", SwingConstants.CENTER));
+
+    JPanel nameP = new JPanel();
+    nameP.setLayout(new BoxLayout(nameP, BoxLayout.X_AXIS));
+    nameP.add(new JLabel("추가/삭제할 상품이름 : "));
+    JTextField menuName = new JTextField();
+    nameP.add(menuName);
+
+    JPanel priceP = new JPanel();
+    priceP.setLayout(new BoxLayout(priceP, BoxLayout.X_AXIS));
+    priceP.add(new JLabel("추가/삭제할 상품가격 : "));
+    JTextField menuPrice = new JTextField();
+    priceP.add(menuPrice);
+
+    chgMenuPage.add(nameP);
+    chgMenuPage.add(priceP);
+
+    JButton addMenu = new JButton("추가하기");
+    chgMenuPage.add(addMenu);
+
+    addMenu.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menuName.getText().equals("") && Integer.parseInt(menuPrice.getText()) >= 0) {
+          post.menuTable.put(menuName.getText(), Integer.parseInt(menuPrice.getText()));
+          try {
+            post.writeData();
+            Admin.writeLog("신규 메뉴 <" + menuName.getText() + ", " + menuPrice.getText() + "> 를 추가하였습니다.");
+          } catch (IOException ex) {
+            ex.printStackTrace();
+          }
+          menuName.setText("");
+          menuPrice.setText("");
+          frame.remove(chgMenuPage);
+          frame.add(mainPage, BorderLayout.CENTER);
+          frame.revalidate();
+          frame.repaint();
+        }
+      }
+    });
+
+    JButton deleteMenu = new JButton("삭제하기");
+    chgMenuPage.add(deleteMenu);
+
+    deleteMenu.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if(post.menuTable.containsKey(menuName.getText())) {
+          String toDelete = menuName.getText();
+          int deletePrice = post.menuTable.get(toDelete);
+          try {
+            post.menuTable.remove(toDelete);
+            post.writeData();
+            Admin.writeLog(
+                "기존 메뉴 <" + toDelete + ", " + Integer.toString(deletePrice) + "> 를 삭제하였습니다.");
+          } catch (IOException ex) {
+            ex.printStackTrace();
+          }
+          menuName.setText("");
+          menuPrice.setText("");
+          frame.remove(chgMenuPage);
+          frame.add(mainPage, BorderLayout.CENTER);
+          frame.revalidate();
+          frame.repaint();
+        }
+      }
+    });
+
+    JButton returnMenuChangeMain = new JButton("돌아가기");
+    chgMenuPage.add(returnMenuChangeMain);
+
+    returnMenuChangeMain.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        menuName.setText("");
+        menuPrice.setText("");
+        frame.remove(chgMenuPage);
+        frame.add(mainPage, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
+      }
+    });
+
+    // 상품관리 패널 끝
+
+    // 상품결제 패널
+
+    payMenuPage.setLayout(new GridLayout(7, 3));
+
+    JPanel forMenuPay = new JPanel();
+    forMenuPay.setLayout(new BoxLayout(forMenuPay, BoxLayout.X_AXIS));
+    forMenuPay.add(new JLabel("결제할 금액 : "));
+    JLabel payMenuMoney = new JLabel("");
+    forMenuPay.add(payMenuMoney);
+
+    JPanel recMenuPay = new JPanel();
+    recMenuPay.setLayout(new BoxLayout(recMenuPay, BoxLayout.X_AXIS));
+    recMenuPay.add(new JLabel("수령한 금액 : "));
+    JTextField recMenuMoney = new JTextField();
+    recMenuPay.add(recMenuMoney);
+
+    payMenuPage.add(forMenuPay);
+    payMenuPage.add(recMenuPay);
+
+    JButton calMenuPay = new JButton("수령확인 / 거스름계산");
+    payMenuPage.add(calMenuPay);
+
+    JPanel chgMenuPay = new JPanel();
+    chgMenuPay.setLayout(new BoxLayout(chgMenuPay, BoxLayout.X_AXIS));
+    chgMenuPay.add(new JLabel("거스름 금액 : "));
+    JLabel chgMenuMoney = new JLabel("");
+    chgMenuPay.add(chgMenuMoney);
+    payMenuPage.add(chgMenuPay);
+
+    JButton successMenuPay = new JButton("결제완료");
+    successMenuPay.setEnabled(false);
+    payMenuPage.add(successMenuPay);
+
+    JButton Menucancel = new JButton("취소하기");
+    payMenuPage.add(Menucancel);
+
+    Menucancel.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        payMenuMoney.setText("");
+        recMenuMoney.setText("");
+        chgMenuMoney.setText("");
+        order.clear();
+        successMenuPay.setEnabled(false);
+        frame.remove(payMenuPage);
+        frame.add(mainPage, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
+      }
+    });
+
+    calMenuPay.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        int requireMenuPay = Integer.parseInt(payMenuMoney.getText());
+        int paidMenuPay = Integer.parseInt(recMenuMoney.getText());
+        if (paidMenuPay < requireMenuPay) {
+          chgMenuMoney.setText("금액부족, 결제불가능");
+        } else {
+          chgMenuMoney.setText(Integer.toString(paidMenuPay - requireMenuPay));
+          successMenuPay.setEnabled(true);
+        }
+      }
+    });
+
+    successMenuPay.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if(Integer.parseInt(recMenuMoney.getText()) >= Integer.parseInt(payMenuMoney.getText())) {
+          try {
+            post.payMenu(order, Integer.parseInt(payMenuMoney.getText()),
+                Integer.parseInt(recMenuMoney.getText()));
+          } catch (IOException ex) {
+            ex.printStackTrace();
+          }
+          payMenuMoney.setText("");
+          recMenuMoney.setText("");
+          chgMenuMoney.setText("");
+          order.clear();
+          successMenuPay.setEnabled(false);
+          frame.remove(payMenuPage);
+          frame.add(mainPage, BorderLayout.CENTER);
+          frame.revalidate();
+          frame.repaint();
+        }
+      }
+    });
+
+    // 상품결제 패널 끝
+
+    // 상품판매 패널
+
+    menuPage.setLayout(new GridLayout(4, 4));
+
+    JScrollPane scroller = new JScrollPane(orderList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+        JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+    JButton menu1 = new JButton("");
+    menuPage.add(menu1);
+    menu1.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu1.getText().equals("")) {
+          order.add(menu1.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu1
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+
+      }
+    });
+    JButton menu2 = new JButton("");
+    menuPage.add(menu2);
+    menu2.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu2.getText().equals("")) {
+          order.add(menu2.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu2
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu3 = new JButton("");
+    menuPage.add(menu3);
+    menu3.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu3.getText().equals("")) {
+          order.add(menu3.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu3
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu4 = new JButton("");
+    menuPage.add(menu4);
+    menu4.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu4.getText().equals("")) {
+          order.add(menu4.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu4
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu5 = new JButton("");
+    menuPage.add(menu5);
+    menu5.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu5.getText().equals("")) {
+          order.add(menu5.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu5
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu6 = new JButton("");
+    menuPage.add(menu6);
+    menu6.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu6.getText().equals("")) {
+          order.add(menu6.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu6
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu7 = new JButton("");
+    menuPage.add(menu7);
+    menu7.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu7.getText().equals("")) {
+          order.add(menu7.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu7
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu8 = new JButton("");
+    menuPage.add(menu8);
+    menu8.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu8.getText().equals("")) {
+          order.add(menu8.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu8
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu9 = new JButton("");
+    menuPage.add(menu9);
+    menu9.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu9.getText().equals("")) {
+          order.add(menu9.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu9
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu10 = new JButton("");
+    menuPage.add(menu10);
+    menu10.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu10.getText().equals("")) {
+          order.add(menu10.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu10
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu11 = new JButton("");
+    menuPage.add(menu11);
+    menu11.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu11.getText().equals("")) {
+          order.add(menu11.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu11
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+    JButton menu12 = new JButton("");
+    menuPage.add(menu12);
+    menu12.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!menu12.getText().equals("")) {
+          order.add(menu12.getText().split("<br>")[0].substring(6));
+          orderList.setText(
+              orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu12
+                  .getText().split("<br>")[0].substring(6) + "</html>");
+        }
+      }
+    });
+
+    menuPage.add(scroller);
+
+    JButton payOrder = new JButton("결제하기");
+    menuPage.add(payOrder);
+    payOrder.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if(!orderList.equals("<html></html>")) {
+          orderList.setText("<html></html>");
+          try {
+            payMenuMoney.setText(Integer.toString(post.calMenu(order)));
+          } catch (IOException ex) {
+            ex.printStackTrace();
+          }
+          frame.remove(menuPage);
+          frame.add(payMenuPage, BorderLayout.CENTER);
+          frame.revalidate();
+          frame.repaint();
+        }
+      }
+    });
+    JButton manageOrder = new JButton("상품관리");
+    menuPage.add(manageOrder);
+    manageOrder.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        order.clear();
+        orderList.setText("<html></html>");
+        frame.remove(menuPage);
+        frame.add(chgMenuPage, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
+      }
+    });
+    JButton returnMenuMain = new JButton("돌아가기");
+    menuPage.add(returnMenuMain);
+    returnMenuMain.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        order.clear();
+        orderList.setText("<html></html>");
+        frame.remove(menuPage);
+        frame.add(mainPage, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
+      }
+    });
+
+    // 상품판매 패널 끝
 
     // 충전요금변경 패널
 
@@ -195,6 +598,87 @@ public class GUIproc {
       }
     });
 
+    menuSell.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        frame.remove(mainPage);
+        frame.add(menuPage, BorderLayout.CENTER);
+        String[] menus = post.menuTable.keySet().toArray(new String[0]);
+        int i = 0;
+        for (; i < menus.length; i++) {
+          menu[i][0] = menus[i];
+          menu[i][1] = Integer.toString(post.menuTable.get(menus[i]));
+        }
+        for (; i < 12; i++) {
+          menu[i][0] = "";
+          menu[i][1] = "";
+        }
+        if (!menu[0][0].equals("")) {
+          menu1.setText("<html>" + menu[0][0] + "<br>" + menu[0][1] + "원</html>");
+        } else {
+          menu1.setText("<html></html>");
+        }
+        if (!menu[1][0].equals("")) {
+          menu2.setText("<html>" + menu[1][0] + "<br>" + menu[1][1] + "원</html>");
+        } else {
+          menu2.setText("<html></html>");
+        }
+        if (!menu[2][0].equals("")) {
+          menu3.setText("<html>" + menu[2][0] + "<br>" + menu[2][1] + "원</html>");
+        } else {
+          menu3.setText("<html></html>");
+        }
+        if (!menu[3][0].equals("")) {
+          menu4.setText("<html>" + menu[3][0] + "<br>" + menu[3][1] + "원</html>");
+        } else {
+          menu4.setText("<html></html>");
+        }
+        if (!menu[4][0].equals("")) {
+          menu5.setText("<html>" + menu[4][0] + "<br>" + menu[4][1] + "원</html>");
+        } else {
+          menu5.setText("<html></html>");
+        }
+        if (!menu[5][0].equals("")) {
+          menu6.setText("<html>" + menu[5][0] + "<br>" + menu[5][1] + "원</html>");
+        } else {
+          menu6.setText("<html></html>");
+        }
+        if (!menu[6][0].equals("")) {
+          menu7.setText("<html>" + menu[6][0] + "<br>" + menu[6][1] + "원</html>");
+        } else {
+          menu7.setText("<html></html>");
+        }
+        if (!menu[7][0].equals("")) {
+          menu8.setText("<html>" + menu[7][0] + "<br>" + menu[7][1] + "원</html>");
+        } else {
+          menu8.setText("<html></html>");
+        }
+        if (!menu[8][0].equals("")) {
+          menu9.setText("<html>" + menu[8][0] + "<br>" + menu[8][1] + "원</html>");
+        } else {
+          menu9.setText("<html></html>");
+        }
+        if (!menu[9][0].equals("")) {
+          menu10.setText("<html>" + menu[9][0] + "<br>" + menu[9][1] + "원</html>");
+        } else {
+          menu10.setText("<html></html>");
+        }
+        if (!menu[10][0].equals("")) {
+          menu11.setText("<html>" + menu[10][0] + "<br>" + menu[10][1] + "원</html>");
+        } else {
+          menu11.setText("<html></html>");
+        }
+        if (!menu[11][0].equals("")) {
+          menu12.setText("<html>" + menu[11][0] + "<br>" + menu[11][1] + "원</html>");
+        } else {
+          menu12.setText("<html></html>");
+        }
+
+        frame.revalidate();
+        frame.repaint();
+      }
+    });
+
     pcFeeChange.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -298,19 +782,22 @@ public class GUIproc {
     successPay.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        try {
-          post.chargePC(forChargePCNum, forChargePCTime, Integer.parseInt(recMoney.getText()));
-          refreshMain(post, pc01_Time, pc02_Time, pc03_Time, pc04_Time, pc05_Time, pc06_Time,
-              pc07_Time, pc08_Time, pc09_Time, pc10_Time);
-          payMoney.setText("");
-          recMoney.setText("");
-          chgMoney.setText("");
-          frame.remove(payPage);
-          frame.add(mainPage, BorderLayout.CENTER);
-          frame.revalidate();
-          frame.repaint();
-        } catch (IOException ex) {
-          ex.printStackTrace();
+        if(Integer.parseInt(recMoney.getText()) >= Integer.parseInt(payMoney.getText())) {
+          try {
+            post.chargePC(forChargePCNum, forChargePCTime, Integer.parseInt(recMoney.getText()));
+            refreshMain(post, pc01_Time, pc02_Time, pc03_Time, pc04_Time, pc05_Time, pc06_Time,
+                pc07_Time, pc08_Time, pc09_Time, pc10_Time);
+            payMoney.setText("");
+            recMoney.setText("");
+            chgMoney.setText("");
+            successPay.setEnabled(false);
+            frame.remove(payPage);
+            frame.add(mainPage, BorderLayout.CENTER);
+            frame.revalidate();
+            frame.repaint();
+          } catch (IOException ex) {
+            ex.printStackTrace();
+          }
         }
       }
     });
@@ -487,7 +974,7 @@ class MultiThread extends Thread {
   }
 
   public void run() {
-    while(true) {
+    while (true) {
       try {
         if (GUIproc.minuteChangeChk()) {
           GUIproc.post.refreshPC();

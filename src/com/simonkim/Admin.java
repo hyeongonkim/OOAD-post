@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.*;
+import java.util.Vector;
 
 public class Admin {
 
@@ -79,23 +80,23 @@ public class Admin {
             .toString(receiveMoney - (time * chargeFee / 60) / 10 * 10) + "원 거스름] 결제되었습니다.");
   }
 
-  int calMenu(String[] order) throws IOException {
+  int calMenu(Vector<String> order) throws IOException {
     //상품 판매, 주문을 연속해서 받고 결제버튼을 누르면 합산 가격 출력 및 결제(receive로 받은 현금, 거스름돈 출력)
     //상품 가액 계산
     int price = 0;
-    for (int i = 0; i < order.length; i++) {
-      price += menuTable.get(order[i]);
+    for (int i = 0; i < order.size(); i++) {
+      price += menuTable.get(order.elementAt(i));
     }
     return price;
   }
 
-  void payMenu(String[] order, int price, int receiveMoney) throws IOException {
+  void payMenu(Vector<String> order, int price, int receiveMoney) throws IOException {
     totalAmount += price;
     String menu = "";
-    for (int i = 0; i < order.length - 1; i++) {
-      menu += order[i] + ", ";
+    for (int i = 0; i < order.size() - 1; i++) {
+      menu += order.elementAt(i) + ", ";
     }
-    menu += order[order.length - 1];
+    menu += order.elementAt(order.size() - 1);
     writeLog("상품 주문 [<" + menu + "> 주문 / " + Integer.toString(receiveMoney) + "원 수령 / " + Integer
         .toString(price) + "원 결제 / " + Integer.toString(receiveMoney - price) + "원 거스름] 결제되었습니다.");
   }
