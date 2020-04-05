@@ -53,6 +53,7 @@ public class Admin {
         int reTime = Integer.parseInt(userPCs[i - 1][1]);
         reTime--;
         if (reTime <= 0) {
+          writeLog("PC" + Integer.toString(i) + "번이 시간 소진으로 사용 종료되었습니다.");
           writePCStatus("0", "0", Integer.toString(i), pcPath);
         } else {
           writePCStatus(userPCs[i - 1][0], Integer.toString(reTime), Integer.toString(i), pcPath);

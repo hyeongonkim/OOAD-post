@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import javax.swing.*;
 
 public class GUIproc {
@@ -12,13 +13,35 @@ public class GUIproc {
   static int forChargePCNum = 0;
   static int forChargePCTime = 0;
 
+  static Admin post;
+
+  static {
+    try {
+      post = new Admin();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  static JLabel pc01_Time;
+  static JLabel pc02_Time;
+  static JLabel pc03_Time;
+  static JLabel pc04_Time;
+  static JLabel pc05_Time;
+  static JLabel pc06_Time;
+  static JLabel pc07_Time;
+  static JLabel pc08_Time;
+  static JLabel pc09_Time;
+  static JLabel pc10_Time;
+
+
+  static SimpleDateFormat time = new SimpleDateFormat("mm");
+
   public static void main(String[] args) throws IOException {
     JFrame frame = new JFrame("PC cafe");
     frame.setSize(900, 600);
     frame.setResizable(false);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-    Admin post = new Admin();
 
     JPanel chargePage = new JPanel();
     JPanel mainPage = new JPanel();
@@ -123,15 +146,15 @@ public class GUIproc {
     mainPage.add(new JLabel("PC04", SwingConstants.CENTER));
     mainPage.add(new JLabel("PC05", SwingConstants.CENTER));
 
-    JLabel pc01_Time = new JLabel("null", SwingConstants.CENTER);
+    pc01_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc01_Time);
-    JLabel pc02_Time = new JLabel("null", SwingConstants.CENTER);
+    pc02_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc02_Time);
-    JLabel pc03_Time = new JLabel("null", SwingConstants.CENTER);
+    pc03_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc03_Time);
-    JLabel pc04_Time = new JLabel("null", SwingConstants.CENTER);
+    pc04_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc04_Time);
-    JLabel pc05_Time = new JLabel("null", SwingConstants.CENTER);
+    pc05_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc05_Time);
 
     mainPage.add(new JLabel("PC06", SwingConstants.CENTER));
@@ -140,15 +163,15 @@ public class GUIproc {
     mainPage.add(new JLabel("PC09", SwingConstants.CENTER));
     mainPage.add(new JLabel("PC10", SwingConstants.CENTER));
 
-    JLabel pc06_Time = new JLabel("null", SwingConstants.CENTER);
+    pc06_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc06_Time);
-    JLabel pc07_Time = new JLabel("null", SwingConstants.CENTER);
+    pc07_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc07_Time);
-    JLabel pc08_Time = new JLabel("null", SwingConstants.CENTER);
+    pc08_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc08_Time);
-    JLabel pc09_Time = new JLabel("null", SwingConstants.CENTER);
+    pc09_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc09_Time);
-    JLabel pc10_Time = new JLabel("null", SwingConstants.CENTER);
+    pc10_Time = new JLabel("null", SwingConstants.CENTER);
     mainPage.add(pc10_Time);
 
     JButton pcCharge = new JButton("PC충전");
@@ -375,6 +398,9 @@ public class GUIproc {
         frame.add(mainPage, BorderLayout.CENTER);
         frame.revalidate();
         frame.repaint();
+        MultiThread[] mt = new MultiThread[1];
+        mt[0] = new MultiThread();
+        mt[0].start();
       }
     });
 
@@ -386,7 +412,7 @@ public class GUIproc {
 
   }
 
-  private static void refreshMain(Admin post, JLabel pc01_Time, JLabel pc02_Time, JLabel pc03_Time,
+  static void refreshMain(Admin post, JLabel pc01_Time, JLabel pc02_Time, JLabel pc03_Time,
       JLabel pc04_Time, JLabel pc05_Time, JLabel pc06_Time, JLabel pc07_Time, JLabel pc08_Time,
       JLabel pc09_Time, JLabel pc10_Time) {
     if (post.userPCs[0][0].equals("0")) {
@@ -441,8 +467,39 @@ public class GUIproc {
     }
   }
 
+  static long nowTime = System.currentTimeMillis();
+  static String prevMin = time.format(nowTime);
+
   static boolean minuteChangeChk() {
-    // 주기적(몇초마다)으로 돌리면서 분 단위가 바뀌는지 체크할 함수, 바뀐다면 PC상태 파일에 변경필요(리프레시 피씨)
+    nowTime = System.currentTimeMillis();
+    String nowMin = time.format(nowTime);
+    if (nowMin.equals(prevMin)) {
+      return false;
+    }
+    prevMin = nowMin;
     return true;
+  }
+}
+
+class MultiThread extends Thread {
+
+  MultiThread() {
+  }
+
+  public void run() {
+    while(true) {
+      try {
+        if (GUIproc.minuteChangeChk()) {
+          GUIproc.post.refreshPC();
+          Thread.sleep(500);
+          GUIproc.refreshMain(GUIproc.post, GUIproc.pc01_Time, GUIproc.pc02_Time, GUIproc.pc03_Time,
+              GUIproc.pc04_Time, GUIproc.pc05_Time, GUIproc.pc06_Time, GUIproc.pc07_Time,
+              GUIproc.pc08_Time, GUIproc.pc09_Time, GUIproc.pc10_Time);
+        }
+        Thread.sleep(3000);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
 }
