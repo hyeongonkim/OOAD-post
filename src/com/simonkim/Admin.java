@@ -8,9 +8,9 @@ import java.util.Vector;
 
 public class Admin {
 
-  static String logPath = "/Users/simonkim/Desktop/OOAD_POST/OOAD_log.txt";
-  String dataPath = "/Users/simonkim/Desktop/OOAD_POST/OOAD_data.txt";
-  String pcPath = "/Users/simonkim/Desktop/OOAD_POST/PC/";
+  static String logPath = "/Users/simonkim/OOAD-post/POST_datafile/OOAD_log.txt";
+  String dataPath = "/Users/simonkim/OOAD-post/POST_datafile/OOAD_data.txt";
+  String pcPath = "/Users/simonkim/OOAD-post/POST_datafile/PC/";
 
   boolean orderAble;
   String[][] userPCs;
