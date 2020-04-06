@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Vector;
 import javax.swing.*;
+import javax.swing.text.*;
 
 public class GUIproc {
 
@@ -47,6 +48,9 @@ public class GUIproc {
     frame.setResizable(false);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+    IntegerDocument id = new IntegerDocument();
+    IntegerDocument id2 = new IntegerDocument();
+
     JPanel chargePage = new JPanel();
     JPanel mainPage = new JPanel();
     JPanel payPage = new JPanel();
@@ -75,6 +79,7 @@ public class GUIproc {
     priceP.setLayout(new BoxLayout(priceP, BoxLayout.X_AXIS));
     priceP.add(new JLabel("추가/삭제할 상품가격 : "));
     JTextField menuPrice = new JTextField();
+    menuPrice.setDocument(id);
     priceP.add(menuPrice);
 
     chgMenuPage.add(nameP);
@@ -162,6 +167,7 @@ public class GUIproc {
     recMenuPay.setLayout(new BoxLayout(recMenuPay, BoxLayout.X_AXIS));
     recMenuPay.add(new JLabel("수령한 금액 : "));
     JTextField recMenuMoney = new JTextField();
+    recMenuMoney.setDocument(id);
     recMenuPay.add(recMenuMoney);
 
     payMenuPage.add(forMenuPay);
@@ -250,7 +256,7 @@ public class GUIproc {
     menu1.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu1.getText().equals("")) {
+        if (!menu1.getText().equals("<html></html>")) {
           order.add(menu1.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu1
@@ -264,7 +270,7 @@ public class GUIproc {
     menu2.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu2.getText().equals("")) {
+        if (!menu2.getText().equals("<html></html>")) {
           order.add(menu2.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu2
@@ -277,7 +283,7 @@ public class GUIproc {
     menu3.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu3.getText().equals("")) {
+        if (!menu3.getText().equals("<html></html>")) {
           order.add(menu3.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu3
@@ -290,7 +296,7 @@ public class GUIproc {
     menu4.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu4.getText().equals("")) {
+        if (!menu4.getText().equals("<html></html>")) {
           order.add(menu4.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu4
@@ -303,7 +309,7 @@ public class GUIproc {
     menu5.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu5.getText().equals("")) {
+        if (!menu5.getText().equals("<html></html>")) {
           order.add(menu5.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu5
@@ -316,7 +322,7 @@ public class GUIproc {
     menu6.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu6.getText().equals("")) {
+        if (!menu6.getText().equals("<html></html>")) {
           order.add(menu6.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu6
@@ -329,7 +335,7 @@ public class GUIproc {
     menu7.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu7.getText().equals("")) {
+        if (!menu7.getText().equals("<html></html>")) {
           order.add(menu7.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu7
@@ -342,7 +348,7 @@ public class GUIproc {
     menu8.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu8.getText().equals("")) {
+        if (!menu8.getText().equals("<html></html>")) {
           order.add(menu8.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu8
@@ -355,7 +361,7 @@ public class GUIproc {
     menu9.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu9.getText().equals("")) {
+        if (!menu9.getText().equals("<html></html>")) {
           order.add(menu9.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu9
@@ -368,7 +374,7 @@ public class GUIproc {
     menu10.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu10.getText().equals("")) {
+        if (!menu10.getText().equals("<html></html>")) {
           order.add(menu10.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu10
@@ -381,7 +387,7 @@ public class GUIproc {
     menu11.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu11.getText().equals("")) {
+        if (!menu11.getText().equals("<html></html>")) {
           order.add(menu11.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu11
@@ -394,7 +400,7 @@ public class GUIproc {
     menu12.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!menu12.getText().equals("")) {
+        if (!menu12.getText().equals("<html></html>")) {
           order.add(menu12.getText().split("<br>")[0].substring(6));
           orderList.setText(
               orderList.getText().substring(0, orderList.getText().length() - 7) + "<br>" + menu12
@@ -467,6 +473,7 @@ public class GUIproc {
     newPay.setLayout(new BoxLayout(newPay, BoxLayout.X_AXIS));
     newPay.add(new JLabel("바꿀 이용 요금 : "));
     JTextField newMoney = new JTextField();
+    newMoney.setDocument(id);
     newPay.add(newMoney);
 
     chgPCPayPage.add(nowPay);
@@ -729,6 +736,7 @@ public class GUIproc {
     recPay.setLayout(new BoxLayout(recPay, BoxLayout.X_AXIS));
     recPay.add(new JLabel("수령한 금액 : "));
     JTextField recMoney = new JTextField();
+    recMoney.setDocument(id);
     recPay.add(recMoney);
 
     payPage.add(forPay);
@@ -812,12 +820,14 @@ public class GUIproc {
     pcNum.setLayout(new BoxLayout(pcNum, BoxLayout.X_AXIS));
     pcNum.add(new JLabel("충전할 번호 : "));
     JTextField toNum = new JTextField();
+    toNum.setDocument(id);
     pcNum.add(toNum);
 
     JPanel pcTime = new JPanel();
     pcTime.setLayout(new BoxLayout(pcTime, BoxLayout.X_AXIS));
     pcTime.add(new JLabel("충전할 시간 : "));
     JTextField toTime = new JTextField();
+    toTime.setDocument(id2);
     pcTime.add(toTime);
 
     chargePage.add(pcNum);
@@ -987,6 +997,64 @@ class MultiThread extends Thread {
       } catch (Exception e) {
         e.printStackTrace();
       }
+    }
+  }
+}
+
+class IntegerDocument extends PlainDocument {
+
+  int currentValue = 0;
+
+  public IntegerDocument() {
+  }
+
+  public int getValue() {
+    return currentValue;
+  }
+
+  public void insertString(int offset, String string,
+      AttributeSet attributes) throws BadLocationException {
+
+    if (string == null) {
+      return;
+    } else {
+      String newValue;
+      int length = getLength();
+      if (length == 0) {
+        newValue = string;
+      } else {
+        String currentContent = getText(0, length);
+        StringBuffer currentBuffer =
+            new StringBuffer(currentContent);
+        currentBuffer.insert(offset, string);
+        newValue = currentBuffer.toString();
+      }
+      currentValue = checkInput(newValue, offset);
+      super.insertString(offset, string, attributes);
+    }
+  }
+  public void remove(int offset, int length)
+      throws BadLocationException {
+    int currentLength = getLength();
+    String currentContent = getText(0, currentLength);
+    String before = currentContent.substring(0, offset);
+    String after = currentContent.substring(length+offset,
+        currentLength);
+    String newValue = before + after;
+    currentValue = checkInput(newValue, offset);
+    super.remove(offset, length);
+  }
+  public int checkInput(String proposedValue, int offset)
+      throws BadLocationException {
+    if (proposedValue.length() > 0) {
+      try {
+        int newValue = Integer.parseInt(proposedValue);
+        return newValue;
+      } catch (NumberFormatException e) {
+        throw new BadLocationException(proposedValue, offset);
+      }
+    } else {
+      return 0;
     }
   }
 }
