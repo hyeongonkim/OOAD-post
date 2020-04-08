@@ -75,7 +75,7 @@ public class Admin {
   void chargePC(int target, int time, int receiveMoney) throws IOException {
     PCcharged(target, time); // 1원 단위 버림
     writeLog(
-        Integer.toString(target) + "번 PC 충전 [" + Integer.toString((time * chargeFee / 60) / 10 * 10)
+        Integer.toString(target) + "번 PC 충전 [" + Integer.toString(receiveMoney)
             + "원 수령 / " + Integer.toString((time * chargeFee / 60) / 10 * 10) + "원 결제 / " + Integer
             .toString(receiveMoney - (time * chargeFee / 60) / 10 * 10) + "원 거스름] 결제되었습니다.");
   }
