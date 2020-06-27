@@ -60,12 +60,16 @@ public class Food {
   }
 
   protected boolean addFood(String name, String price) throws IOException {
+    if(menuTable.containsKey(name))
+      return false;
     menuTable.put(name, Integer.parseInt(price));
     saveFoodTable();
     return true;
   }
 
   protected boolean deleteFood(String name) throws IOException {
+    if(!menuTable.containsKey(name))
+      return false;
     menuTable.remove(name);
     saveFoodTable();
     return true;
