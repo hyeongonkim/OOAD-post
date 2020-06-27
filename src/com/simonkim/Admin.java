@@ -16,7 +16,7 @@ public class Admin {
     pc = new PC();
     Logging.writeLog("시간당 이용 금액은 " + pc.getChargeFee() + "원 입니다.");
     food = new Food();
-    Logging.writeLog("판매 메뉴는 " + String.valueOf(food.getFoodTable().keySet()) + "입니다.");
+    Logging.writeLog("판매 메뉴는 " + String.valueOf(food.getFoodTable().keySet()) + " 입니다.");
     Logging.writeLog("판매를 시작합니다.");
   }
 
