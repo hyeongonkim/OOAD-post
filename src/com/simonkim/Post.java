@@ -502,8 +502,8 @@ class MultiThread extends Thread {
     while (true) {
       try {
         if (minuteChangeChk()) {
+          Post.admin.deductionTime();
           if (Post.isMainSales) {
-            Post.admin.deductionTime();
             Post.mainFrame.getContentPane().removeAll();
             Post.mainSales();
           }
