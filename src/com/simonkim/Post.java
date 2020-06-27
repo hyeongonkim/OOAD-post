@@ -303,13 +303,15 @@ public class Post {
     calPay.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        int requirePay = Integer.parseInt(payMoney.getText());
-        int paidPay = Integer.parseInt(recMoney.getText());
-        if (paidPay < requirePay) {
-          chgMoney.setText("금액부족, 결제불가능");
-        } else {
-          chgMoney.setText(Integer.toString(paidPay - requirePay));
-          successPay.setEnabled(true);
+        if(!recMoney.getText().equals("")) {
+          int requirePay = Integer.parseInt(payMoney.getText());
+          int paidPay = Integer.parseInt(recMoney.getText());
+          if (paidPay < requirePay) {
+            chgMoney.setText("금액부족, 결제불가능");
+          } else {
+            chgMoney.setText(Integer.toString(paidPay - requirePay));
+            successPay.setEnabled(true);
+          }
         }
       }
     });
