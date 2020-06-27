@@ -284,7 +284,7 @@ public class Post {
     successPay.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if(Integer.parseInt(recMoney.getText()) >= Integer.parseInt(payMoney.getText())) {
+        if(!recMoney.getText().equals("") && Integer.parseInt(recMoney.getText()) >= Integer.parseInt(payMoney.getText())) {
           try {
             if(admin.completePay(type, pcNum, pcTime, order, Integer.parseInt(payMoney.getText()), Integer.parseInt(recMoney.getText()))) {
               mainFrame.remove(payment);
@@ -323,12 +323,6 @@ public class Post {
         mainSales();
       }
     });
-
-
-
-
-
-
 
     mainFrame.add(payment, BorderLayout.CENTER);
     mainFrame.revalidate();
